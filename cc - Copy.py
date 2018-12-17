@@ -13,32 +13,12 @@ Created on Sun Dec 16 18:33:23 2018
 """
 import numpy as np
 import matplotlib.pyplot as plt
-def process1(constant1,electron_t,constantup,constantdown,density_list,mass,gas_temperature):
-    k=constant1*(np.exp(constantup/(electron_t+constantdown)))
-    r=k
-    for reactor in density_list:
-        r=r*reactor
-    energy_loss=(2*5.46*(10**-4)/40)*(3/2)
-    energy_loss=energy_loss*(electron_t-gas_temperature*kb/e)
-    return k,r,energy_loss
-#inelastic and super_lastic process
 def process2(constant1,electron_t,constantup,constantdown,density_list,energy):
     k=constant1*(electron_t**constantup)*np.exp(constantdown/electron_t)
     r=k
     for reactor in density_list:
         r=r*reactor
     return k,r,energy
-#mixed state radiation trap S-1
-def process3(constant,Ar,a_r,energy=0):
-    return constant*(Ar_0/Ar),constant*(Ar_0/Ar)*a_r,energy
-#recombination
-def process4(constant,electron_t,constantup,density_list,energy=0):
-    k=constant*(electron_t**constantup)
-    r=k
-    for reactor in density_list:
-        r=r*reactor
-    return k,r,energy
-#penning ionization
 def process5(constant,density_list,energy=0):
     k=constant
     r=k
@@ -62,17 +42,11 @@ def electron_temperature_change(electron_density,power,volume,rate_list,energy_l
     #print(target)
     return target
 
-Ninitial=1*(10**15)
-Ar_0=(10**14)*3
+Ninitial=3*(10**14)
 V=0.0015
 T=300
 Tion=300
-cl1=0.1*(10**9)
-ar1=0.9*(10**9)
-Mar=1.66*(10**-27)*40
-Ar_lj=3.542*(10**-8)
-Ar=1*(10**15)*0.9
-a_r=0
+cl1=10**9
 kb_ev=1
 volume=1.5*(10**(3))
 Te=0.5
@@ -86,7 +60,7 @@ me=9.1*(10**-31)
 cl_lj=2*(10**-8)
 cl2_lj=2*(10**-8)
 
-cl2=1*(10**14)
+cl2=3*(10**14)
 
 kb=1.38*(10**-23)
 e=1.6*(10**-19)
@@ -96,9 +70,6 @@ cl11=0
 cl21=0
 
 Tev=0.0258
-Arvalue=[Ar]
-ar1value=[ar1]
-a_rvalue=[a_r]
 
 cl2value=[cl2]
 clvvalue=[clv]
@@ -119,7 +90,7 @@ dtel=[]
 total=[]
 
 
-F=500*4.479*(10**(17))
+F=5000*4.479*(10**(17))
 #Twall=300
 #Tin=300
 #P0=0.05
@@ -131,20 +102,17 @@ dlist=[]
 
 
 
-for i in range(40000):
+for i in range(30000):
     
     if i<100:
-        power=(0.1+i*400/100)/(1.6*(10**-19))
+        power=(0.1+i*1000/100)/(1.6*(10**-19))
         #print(power)
     else:
-        power=400/(1.6*(10**-19))
+        power=1000/(1.6*(10**-19))
     Dion2=661/0.52
     Dion1=661/0.36
     Dneu=8776.7
     Dneuv=6269
-    #ar
-    Dneo=2633
-    Dion=659
     k1,r1,E1=process2(3.8*(10**-8),Te,0,-4,[ne,cl2],4)
     k2,r2,E2=process2(9.21*(10**-8),Te,0,-12.34,[ne,cl2],11.5)
     k3,r3,E3=process2(3.88*(10**-9),Te,0,-15.5,[ne,cl2],15.5)
@@ -164,53 +132,27 @@ for i in range(40000):
     k17,r17,E17=process6(4/2.405,Dneu,[2*cl])
     k18,r18,E18=process6(4/2.405,Dneuv,[clv])
     k19,r19,E19=process6(4/2.405,(Dion1)*(1+Te/Tev),[cl21])
-    
-    k20,r20,E20=process1((3.9*(10**-7)),Te,-4.6,0.5,[ne,Ar],Mar,T)
-    k21,r21,E21=process2(2.5*(10**-9),Te,0.74,-11.6,[ne,Ar],11.6)
-    k22,r22,E22=process2(2.3*(10**-8),Te,0.68,-16,[ne,Ar],16)
-    k23,r23,E23=process2(4.3*(10**-10),Te,0.74,0,[ne,a_r],-11.6)
-    k24,r24,E24=process2(6.8*(10**-9),Te,0.67,-4.4,[ne,a_r],4.4)
-    k25,r25,E25=process3(10**5,Ar,a_r)
-    k26,r26,E26=process4(4.3*(10**-13),Te,-0.63,[ne,ar1])
-    k27,r27,E27=process4(1.95*(10**-27),Te,-4.5,[ne,ne,ar1])
-    k28,r28,E28=process5(1.2*(10**-9),[a_r,a_r])
-    k29,r29,E29=process6(4/2.405,(Dion)*(1+Te/Tev),[ar1])
-    k30,r30,E30=process6(4/2.405,Dneo,[a_r])
-    
-    k31,r31,E31=process5(1.9*(10**-10),[cl2,ar1])
-    k32,r32,E32=process5(5.7*(10**-10),[cl2,ar1])
-    k33,r33,E33=process5(5*(10**-8),[cl11,ar1])
-    k34,r34,E34=process5(7.1*(10**-10),[cl2,a_r])
-    k35,r35,E35=process5(12*(10**-10),[cl,ar1])
-    
     tdepend=(T/300)**0.5
-    klist=np.array([k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12*tdepend,k13*tdepend,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35])
-    rlist=np.array([r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12*tdepend,r13*tdepend,r14,r15,r16,r17,r18,r19,r20,r21,r22,r23,r24,r25,r26,r27,r28,r29,r30,r31,r32,r33,r34,r35])
-    Elist=np.array([E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,E11,E12,E13,E14,E15,E16,E17,E18,E19,E20,E21,E22,E23,E24,E25,E26,E27,E28,E29,E30,E31,E32,E33,E34,E35])
-    cl2list=np.array([-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,-1,0,1,1,1,1]+[0]*11+[-1,-1,0,-1,0])
-    clvlist=np.array([0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,-1,0]+[0]*11+[0,0,0,0,0])
-    cl21list=np.array([0,1,0,0,0,0,0,-1,0,0,0,-1,0,1,0,0,0,0,-1]+[0]*11+[1,0,0,1,0])
-    cllist=np.array([2,0,1,0,1,0,0,2,-1,1,0,3,2,1,1,0,-2,0,0]+[0]*11+[0,1,1,0,-1])
-    cl1list=np.array([0,0,1,2,0,1,0,0,1,0,1,0,-1,-1,-1,0,0,0,0]+[0]*11+[0,1,0,0,1])
-    cl11list=np.array([0,0,0,0,1,1,0,0,0,-1,-1,-1,-1,0,0,-1,0,0,0]+[0]*11+[0,0,-1,0,0])
-    Arlist=np.array([0]*19+[0,-1,-1,1,0,1,0,0,1,1,1]+[1,1,1,1,1])
-    a_rlist=np.array([0]*19+[0,1,0,-1,-1,-1,1,1,-2,0,-1]+[0,0,0,-1,0])
-    ar1list=np.array([0]*19+[0,0,1,0,1,0,-1,-1,1,-1,0]+[-1,-1,-1,0,-1])
-    nelist=ar1list+cl21list+cl1list-cl11list
+    klist=np.array([k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12*tdepend,k13*tdepend,k14,k15,k16,k17,k18,k19])
+    rlist=np.array([r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12*tdepend,r13*tdepend,r14,r15,r16,r17,r18,r19])
+    Elist=np.array([E1,E2,E3,E4,E5,E6,E7,E8,E9,E10,E11,E12,E13,E14,E15,E16,E17,E18,E19])
+    cl2list=np.array([-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,-1,0,1,1,1,1])
+    clvlist=np.array([0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,-1,0])
+    cl21list=np.array([0,1,0,0,0,0,0,-1,0,0,0,-1,0,1,0,0,0,0,-1])
+    cllist=np.array([2,0,1,0,1,0,0,2,-1,1,0,3,2,1,1,0,-2,0,0])
+    cl1list=np.array([0,0,1,2,0,1,0,0,1,0,1,0,-1,-1,-1,0,0,0,0])
+    cl11list=np.array([0,0,0,0,1,1,0,0,0,-1,-1,-1,-1,0,0,-1,0,0,0])
+    nelist=cl21list+cl1list-cl11list
     
     
-    cl2in=0.5*F/volume
-    Arin=0.5*F/volume
-    Nneural=cl+cl2+clv+Ar+a_r
-    Ntotal=cl2+cl1+cl+clv+cl11+cl21+Ar+a_r+ar1
+    cl2in=F/volume
+    Nneural=cl+cl2+clv
+    Ntotal=cl2+cl1+cl+clv+cl11+cl21
     clout=-(cl/Nneural)*(1+(Ntotal-Ninitial)/Ninitial)*(F/volume)
     cl2out=-(cl2/Nneural)*(1+(Ntotal-Ninitial)/Ninitial)*(F/volume)
     clvout=-(clv/Nneural)*(1+(Ntotal-Ninitial)/Ninitial)*(F/volume)
-    Arout=-(Ar/Nneural)*(1+(Ntotal-Ninitial)/Ninitial)*(F/volume)
-    a_rout=-(a_r/Nneural)*(1+(Ntotal-Ninitial)/Ninitial)*(F/volume)
-    Ar=Ar+(sum(rlist*Arlist)+Arin+Arout)*unit*(10**-5)
-    a_r=a_r+(sum(rlist*a_rlist)+a_rout)*unit*(10**-5)
-    ar1=ar1+sum(rlist*ar1list)*unit*(10**-5)
+   
+    
     
     cl2=cl2+(sum(rlist*cl2list)+cl2in+cl2out)*unit*(10**-5)
     clv=clv+(sum(rlist*clvlist)+clvout)*unit*(10**-5)
@@ -229,11 +171,6 @@ for i in range(40000):
     clvalue.append(cl)
     cl1value.append(cl1)
     cl11value.append(cl11)
-    
-    Arvalue.append(Ar)
-    a_rvalue.append(a_r)
-    ar1value.append(ar1)
-    
     dTe=electron_temperature_change(ne,power,volume,rlist,Elist)
     dlist.append(dTe)
     #print(dTe)
